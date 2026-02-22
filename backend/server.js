@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const morgan = require('morgan'); // HTTP request logger
 const { getQuery, allQuery, runQuery } = require('./database');
 const { pushToQueue, getQueueStats } = require('./queue');
 const cache = require('./cache');
@@ -7,6 +8,9 @@ const cache = require('./cache');
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Monitoring / Logging
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
 // ==========================================
 // RIDER APP ENDPOINTS
@@ -54,10 +58,41 @@ app.get('/api/config/ui', async (req, res) => {
     }
 });
 
+/**
+ * Get all drivers (Public endpoint for Rider App form)
+ */
+app.get('/api/drivers', async (req, res) => {
+    try {
+        const drivers = await allQuery("SELECT id, name FROM drivers ORDER BY name ASC");
+        res.json(drivers);
+    } catch (err) {
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+const { authenticateToken, generateToken } = require('./auth');
+
+// ==========================================
+// ADMIN AUTH ENDPOINTS
+// ==========================================
+
+app.post('/api/admin/login', (req, res) => {
+    const { username, password } = req.body;
+    // Hardcoded admin for MVP purposes
+    if (username === 'admin' && password === 'admin123') {
+        const token = generateToken({ username, role: 'admin' });
+        res.json({ token });
+    } else {
+        res.status(401).json({ error: 'Invalid credentials' });
+    }
+});
 
 // ==========================================
 // ADMIN DASHBOARD ENDPOINTS
 // ==========================================
+
+// Apply JWT authentication to all admin routes below this line
+app.use('/api/admin', authenticateToken);
 
 /**
  * Get all drivers and their current Average Scores O(1) Fetch
@@ -100,8 +135,9 @@ app.get('/api/admin/feedbacks', async (req, res) => {
 app.get('/api/admin/system', async (req, res) => {
     try {
         const thresholdRow = await getQuery("SELECT value FROM config WHERE key = 'alert_threshold'");
+        const queueLength = await getQueueStats();
         res.json({
-            queueLength: getQueueStats(),
+            queueLength: queueLength,
             alertThreshold: thresholdRow ? thresholdRow.value : "2.5"
         });
     } catch (err) {
@@ -123,6 +159,14 @@ app.post('/api/admin/config', async (req, res) => {
     }
 });
 
+
+// ==========================================
+// GLOBAL ERROR HANDLING
+// ==========================================
+app.use((err, req, res, next) => {
+    console.error(`[Global Error Handler] ${err.stack}`);
+    res.status(500).json({ error: 'An unexpected internal server error occurred', details: err.message });
+});
 
 // Start Web Server
 const PORT = process.env.PORT || 3001;

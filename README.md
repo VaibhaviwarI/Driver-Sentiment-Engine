@@ -5,13 +5,18 @@ A real-time feedback processing system built to monitor rider satisfaction and d
 This MVP project analyzes textual feedback via an asynchronous message queue, updating driver scores in O(1) time using Exponential Moving Average (EMA) math to trigger anti-spam safety alerts. It features a configurable React frontend and an Admin Dashboard with in-memory caching to reduce database load.
 
 ## 🚀 Key Features
-*   **O(1) EMA Algorithm:** Calculates and updates driver sentiment scores efficiently without recalculating historical data.
-*   **Asynchronous Queue Processing:** Fast `202 Accepted` API responses, processing heavy DB logic in a background worker queue (simulating Kafka/RabbitMQ) to prevent database locking during traffic spikes.
+*   **Authentication & Security:** JWT-based stateless authentication protecting Admin API routes and React Router dashboards.
+*   **O(1) Processing & Cost Estimation:** Calculates and updates driver sentiment scores efficiently without recalculating historical data via Exponential Moving Average (EMA). (See `Cost_Estimation.md`)
+*   **Fault-Tolerant Persistent Queue:** Background worker queue runs on a persistent SQLite `jobs_queue` table. Server restarts or crashes will never lose pending feedback records.
+*   **Object-Oriented Architecture:** Core Sentiment Engine and Queue Logic are decoupled into abstract interfaces and concrete classes (`ISentimentAnalyzer`) for high testability and swappability.
 *   **Smart Alert Deduplication:** Configurable threshold alerts with a distributed lock mechanism to prevent spamming operations teams with duplicate alerts.
 *   **Configurable Dynamic UI:** Frontend dynamically alters its feedback forms based on database feature flags (Driver, Trip, App, Marshal feedback toggleable without deployments).
+*   **System Monitoring:** Global Express.js error handlers and Morgan HTTP logging integrated.
 *   **In-Memory API Caching:** Admin dashboard utilizes an LRU TTL Cache to fetch data in O(1) time without hammering the database.
 
-## 🛠️ Tech Stack
+## 📄 Documentation
+*   [Cost Estimation (Time & Space)](Cost_Estimation.md)
+*   [System Architecture Trade-offs](Trade_offs.md)
 *   **Backend:** Node.js, Express.js
 *   **Frontend:** React, Vite, Recharts, React Router
 *   **Database:** SQLite (Raw SQL queries, no ORM)
@@ -40,6 +45,11 @@ npm install
 npm run dev
 ```
 The frontend will typically run on `http://localhost:5173`. Click the link in the terminal to view the app in your browser.
+
+### 3. Admin Login Credentials
+To view the Admin Dashboard and Analytics:
+*   **Username:** `admin`
+*   **Password:** `admin123`
 
 ## 📁 Repository Structure
 *   `/backend` - Express API, SQLite Database configuration, Queue worker, and Sentiment logic.

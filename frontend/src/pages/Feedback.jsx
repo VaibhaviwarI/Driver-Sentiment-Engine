@@ -23,7 +23,7 @@ export default function Feedback() {
         axios.get(`${API_URL}/config/ui`).then(res => setConfig(res.data));
 
         // Fetch Drivers for dropdown
-        axios.get(`${API_URL}/admin/drivers`).then(res => setDrivers(res.data));
+        axios.get(`${API_URL}/drivers`).then(res => setDrivers(res.data));
     }, []);
 
     const handleSubmit = async (e) => {

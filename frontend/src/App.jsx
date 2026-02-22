@@ -1,11 +1,13 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import axios from 'axios';
 import Feedback from './pages/Feedback';
 import Dashboard from './pages/Dashboard';
-import { Car, BarChart3 } from 'lucide-react';
+import Login from './pages/Login';
+import { Car, BarChart3, LogOut } from 'lucide-react';
 import './index.css';
 
-function NavLinks() {
+function NavLinks({ authToken, handleLogout }) {
   const location = useLocation();
   return (
     <nav>
@@ -24,6 +26,11 @@ function NavLinks() {
               Admin Dashboard
             </div>
           </Link>
+          {authToken && (
+            <button onClick={handleLogout} className="flex items-center gap-2 outline-btn ml-4" style={{ padding: '0.4rem 0.8rem' }}>
+              <LogOut size={16} /> Logout
+            </button>
+          )}
         </div>
       </div>
     </nav>
@@ -31,14 +38,32 @@ function NavLinks() {
 }
 
 function App() {
+  const [authToken, setAuthToken] = useState(localStorage.getItem('adminToken') || null);
+
+  useEffect(() => {
+    if (authToken) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+    }
+  }, [authToken]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    setAuthToken(null);
+  };
+
   return (
     <Router>
       <div className="app-wrapper">
-        <NavLinks />
+        <NavLinks authToken={authToken} handleLogout={handleLogout} />
         <main className="container">
           <Routes>
             <Route path="/" element={<Feedback />} />
-            <Route path="/admin" element={<Dashboard />} />
+            <Route
+              path="/admin"
+              element={authToken ? <Dashboard /> : <Login setAuthToken={setAuthToken} />}
+            />
           </Routes>
         </main>
       </div>

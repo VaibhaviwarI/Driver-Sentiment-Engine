@@ -53,6 +53,16 @@ function initializeTables() {
             }
         });
 
+        // Job Queue Table (Fault Tolerance)
+        db.run(`
+            CREATE TABLE IF NOT EXISTS jobs_queue (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                payload TEXT NOT NULL,
+                status TEXT DEFAULT 'pending',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         console.log('Database tables initialized.');
     });
 }
