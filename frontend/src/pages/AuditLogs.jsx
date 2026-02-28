@@ -23,43 +23,36 @@ export default function AuditLogs() {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="flex items-center gap-2">
-                    <ShieldCheck color="var(--primary)" size={32} /> System Audit Trail
+                <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900 m-0">
+                    <ShieldCheck className="text-primary" size={32} /> System Audit Trail
                 </h1>
             </div>
 
-            <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+            <div className="card border-t-4 border-t-primary">
+                <p className="text-slate-500 mb-6 text-lg">
                     Immutable log of all critical administrative actions and system configuration changes for compliance and security traceability.
                 </p>
-                <div className="table-container">
-                    <table>
-                        <thead>
+                <div className="overflow-x-auto rounded-lg border border-slate-200">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50 border-b border-slate-200">
                             <tr>
-                                <th>Log ID</th>
-                                <th>Action Type</th>
-                                <th>Action Details</th>
-                                <th>Timestamp</th>
+                                <th className="p-4 font-semibold text-slate-600">Log ID</th>
+                                <th className="p-4 font-semibold text-slate-600">Action Type</th>
+                                <th className="p-4 font-semibold text-slate-600">Action Details</th>
+                                <th className="p-4 font-semibold text-slate-600">Timestamp</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-slate-100">
                             {logs.map(log => (
-                                <tr key={log.id}>
-                                    <td style={{ color: 'var(--text-muted)' }}>#{log.id}</td>
-                                    <td>
-                                        <span style={{
-                                            background: 'var(--bg-card)',
-                                            padding: '0.2rem 0.6rem',
-                                            borderRadius: '4px',
-                                            border: '1px solid var(--border)',
-                                            fontWeight: 'bold',
-                                            fontSize: '0.9rem'
-                                        }}>
+                                <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                                    <td className="p-4 text-slate-400 font-medium">#{log.id}</td>
+                                    <td className="p-4">
+                                        <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-md border border-slate-200 font-semibold text-sm">
                                             {log.action}
                                         </span>
                                     </td>
-                                    <td>{log.details}</td>
-                                    <td style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                    <td className="p-4 text-slate-700">{log.details}</td>
+                                    <td className="p-4 text-slate-500 text-sm">
                                         {new Date(log.created_at).toLocaleString()}
                                     </td>
                                 </tr>
@@ -67,9 +60,9 @@ export default function AuditLogs() {
                         </tbody>
                     </table>
                     {logs.length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-                            <Database size={48} color="var(--border)" style={{ margin: '0 auto 1rem' }} />
-                            <p style={{ color: 'var(--text-muted)' }}>No audit logs recorded yet.</p>
+                        <div className="text-center py-12">
+                            <Database size={48} className="text-slate-300 mx-auto mb-4" />
+                            <p className="text-slate-500 text-lg m-0">No audit logs recorded yet.</p>
                         </div>
                     )}
                 </div>

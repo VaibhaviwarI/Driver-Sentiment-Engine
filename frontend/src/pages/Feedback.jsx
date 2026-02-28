@@ -62,21 +62,21 @@ export default function Feedback() {
     if (!config) return <p>Loading configurable form...</p>;
 
     return (
-        <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <h2>Submit Trip Feedback</h2>
-            <p>Your feedback helps us maintain high safety and quality standards.</p>
+        <div className="card shadow-md max-w-2xl mx-auto my-8">
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Submit Trip Feedback</h2>
+            <p className="text-slate-500 mb-6">Your feedback helps us maintain high safety and quality standards.</p>
 
             {success && (
-                <div className="card" style={{ background: 'var(--success)', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CheckCircle2 /> Feedback received and queued for processing!
+                <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 p-4 rounded-lg mb-6 flex items-center gap-3 font-medium">
+                    <CheckCircle2 className="text-emerald-500" /> Feedback received and queued for processing!
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="mt-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
 
-                <div className="form-group">
-                    <label>Select Driver</label>
-                    <select value={selectedDriver} onChange={e => setSelectedDriver(e.target.value)} required>
+                <div>
+                    <label className="form-label">Select Driver</label>
+                    <select value={selectedDriver} onChange={e => setSelectedDriver(e.target.value)} className="form-input" required>
                         <option value="" disabled>Select a driver...</option>
                         {drivers.map(d => (
                             <option key={d.id} value={d.id}>{d.name}</option>
@@ -87,52 +87,56 @@ export default function Feedback() {
                 {/* Dynamically Generated Configurable Form Fields */}
 
                 {config.feature_driver && (
-                    <div className="form-group">
-                        <label>Driver Feedback</label>
+                    <div>
+                        <label className="form-label">Driver Feedback</label>
                         <textarea
                             placeholder="How was the driver's behavior and driving? (e.g. Great driver, felt safe)"
                             value={driverText}
                             onChange={e => setDriverText(e.target.value)}
+                            className="form-input"
                             required
                         />
                     </div>
                 )}
 
                 {config.feature_trip && (
-                    <div className="form-group">
-                        <label>Trip Experience (Route, Comfort)</label>
+                    <div>
+                        <label className="form-label">Trip Experience (Route, Comfort)</label>
                         <textarea
                             placeholder="Any comments on the route or vehicle?"
                             value={tripText}
                             onChange={e => setTripText(e.target.value)}
+                            className="form-input"
                         />
                     </div>
                 )}
 
                 {config.feature_app && (
-                    <div className="form-group">
-                        <label>App Experience</label>
+                    <div>
+                        <label className="form-label">App Experience</label>
                         <textarea
                             placeholder="Did the app work well? Any bugs?"
                             value={appText}
                             onChange={e => setAppText(e.target.value)}
+                            className="form-input"
                         />
                     </div>
                 )}
 
                 {config.feature_marshal && (
-                    <div className="form-group">
-                        <label>Security Marshal Routing</label>
+                    <div>
+                        <label className="form-label">Security Marshal Routing</label>
                         <textarea
                             placeholder="Was the marshal helpful?"
                             value={marshalText}
                             onChange={e => setMarshalText(e.target.value)}
+                            className="form-input"
                         />
                     </div>
                 )}
 
-                <button type="submit" disabled={loading}>
-                    {loading ? 'Submitting...' : <><Send size={18} /> Submit Feedback</>}
+                <button type="submit" className="btn-primary w-full justify-center text-lg mt-4" disabled={loading}>
+                    {loading ? 'Submitting...' : <><Send size={20} /> Submit Feedback</>}
                 </button>
             </form>
         </div>

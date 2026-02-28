@@ -31,32 +31,34 @@ export default function Login({ setAuthToken }) {
     };
 
     return (
-        <div className="card" style={{ maxWidth: '400px', margin: '4rem auto' }}>
-            <h2>Admin Login</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Please enter your credentials to view the dashboard.</p>
+        <div className="card shadow-lg max-w-md mx-auto my-16 border-t-4 border-t-primary">
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Admin Login</h2>
+            <p className="text-slate-500 mb-8">Please enter your credentials to view the dashboard.</p>
 
-            {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem' }}>{error}</div>}
+            {error && <div className="bg-rose-50 text-rose-700 border border-rose-200 p-3 rounded-lg mb-6 text-sm font-medium">{error}</div>}
 
-            <form onSubmit={handleLogin}>
-                <div className="form-group">
-                    <label>Username</label>
+            <form onSubmit={handleLogin} className="space-y-6">
+                <div>
+                    <label className="form-label">Username</label>
                     <input
                         type="text"
                         value={username}
                         onChange={e => setUsername(e.target.value)}
+                        className="form-input"
                         required
                     />
                 </div>
-                <div className="form-group">
-                    <label>Password</label>
+                <div>
+                    <label className="form-label">Password</label>
                     <input
                         type="password"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
+                        className="form-input"
                         required
                     />
                 </div>
-                <button type="submit" disabled={loading} style={{ width: '100%', marginTop: '1rem' }}>
+                <button type="submit" className="btn-primary w-full justify-center text-lg mt-2 py-3" disabled={loading}>
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
             </form>

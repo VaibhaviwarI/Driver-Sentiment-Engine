@@ -22,38 +22,38 @@ export default function Leaderboard() {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="flex items-center gap-2">
-                    <Trophy color="gold" size={32} /> Elite Driver Leaderboard
+                <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900 m-0">
+                    <Trophy className="text-yellow-500" size={32} /> Elite Driver Leaderboard
                 </h1>
             </div>
 
-            <div className="card" style={{ backgroundImage: 'linear-gradient(to right, #f8f9fc, #ffffff)' }}>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+            <div className="card bg-gradient-to-br from-slate-50 to-white shadow-lg border-t-4 border-primary">
+                <p className="text-slate-500 mb-8 text-lg">
                     Recognizing drivers with the most exceptional sentiment and safety scores across all operational regions.
                 </p>
-                <div className="table-container">
-                    <table>
-                        <thead>
+                <div className="overflow-x-auto rounded-lg border border-slate-200">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50 border-b border-slate-200">
                             <tr>
-                                <th>Global Rank</th>
-                                <th>Driver Name</th>
-                                <th>Operating Region</th>
-                                <th>Sentiment Rating (Avg)</th>
+                                <th className="p-4 font-semibold text-slate-600">Global Rank</th>
+                                <th className="p-4 font-semibold text-slate-600">Driver Name</th>
+                                <th className="p-4 font-semibold text-slate-600">Operating Region</th>
+                                <th className="p-4 font-semibold text-slate-600">Sentiment Rating (Avg)</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-slate-100">
                             {leaders.map((d, index) => (
-                                <tr key={d.id} style={index < 3 ? { backgroundColor: index === 0 ? 'rgba(255, 215, 0, 0.08)' : index === 1 ? 'rgba(192, 192, 192, 0.08)' : 'rgba(205, 127, 50, 0.08)', fontWeight: 'bold' } : {}}>
-                                    <td style={{ fontSize: '1.2rem' }}>
-                                        {index === 0 ? <Medal color="gold" size={28} /> :
-                                            index === 1 ? <Medal color="silver" size={28} /> :
-                                                index === 2 ? <Medal color="#cd7f32" size={28} /> :
-                                                    <span style={{ marginLeft: '6px', color: 'var(--text-muted)' }}>#{index + 1}</span>}
+                                <tr key={d.id} className={`transition-colors hover:bg-slate-50 ${index === 0 ? 'bg-yellow-50 font-bold' : index === 1 ? 'bg-slate-100 font-bold' : index === 2 ? 'bg-orange-50 font-bold' : ''}`}>
+                                    <td className="p-4 text-xl">
+                                        {index === 0 ? <Medal className="text-yellow-500" size={28} /> :
+                                            index === 1 ? <Medal className="text-slate-400" size={28} /> :
+                                                index === 2 ? <Medal className="text-orange-600" size={28} /> :
+                                                    <span className="ml-2 text-slate-500 font-medium">#{index + 1}</span>}
                                     </td>
-                                    <td>{d.name}</td>
-                                    <td><span style={{ background: 'var(--bg-card)', padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)' }}>{d.region}</span></td>
-                                    <td>
-                                        <span className={`score-badge score-high`} style={{ fontSize: '1.1rem', padding: '0.4rem 0.8rem' }}>
+                                    <td className="p-4 text-slate-800">{d.name}</td>
+                                    <td className="p-4"><span className="bg-white px-3 py-1 rounded border border-slate-200 text-slate-700">{d.region}</span></td>
+                                    <td className="p-4">
+                                        <span className="score-badge score-high text-lg px-4 py-1.5 shadow-sm">
                                             {d.average_score.toFixed(2)}
                                         </span>
                                     </td>
@@ -61,7 +61,7 @@ export default function Leaderboard() {
                             ))}
                         </tbody>
                     </table>
-                    {leaders.length === 0 && <p className="mt-4 text-center">Insufficient data to compile the global leaderboard.</p>}
+                    {leaders.length === 0 && <p className="p-8 text-center text-slate-500">Insufficient data to compile the global leaderboard.</p>}
                 </div>
             </div>
         </div>

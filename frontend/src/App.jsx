@@ -15,49 +15,37 @@ import './index.css';
 function NavLinks({ authToken, handleLogout }) {
   const location = useLocation();
   return (
-    <nav>
-      <div className="nav-content">
+    <nav className="bg-gradient-to-r from-slate-900 to-slate-800 border-b-4 border-primary py-4 mb-8 shadow-md">
+      <div className="max-w-5xl mx-auto px-8 flex justify-between items-center flex-wrap gap-4">
         <div className="flex items-center gap-4">
-          <Car size={32} color="var(--primary)" />
-          <h2>Driver Sentiment Engine</h2>
+          <Car size={32} className="text-primary" />
+          <h2 className="text-white m-0 text-xl font-bold tracking-tight">Driver Sentiment Engine</h2>
         </div>
-        <div className="nav-links flex items-center">
-          <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/" className={`px-3 py-2 rounded-md font-medium transition-colors ${location.pathname === '/' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
             Rider App
           </Link>
-          <Link to="/leaderboard" className={location.pathname === '/leaderboard' ? 'active' : ''}>
-            <div className="flex items-center gap-2">
-              <Trophy size={18} /> Elite Rank
-            </div>
+          <Link to="/leaderboard" className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${location.pathname === '/leaderboard' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Trophy size={18} /> Elite Rank
           </Link>
-          <Link to="/admin" className={location.pathname === '/admin' ? 'active' : ''}>
-            <div className="flex items-center gap-2">
-              <BarChart3 size={18} /> Admin
-            </div>
+          <Link to="/admin" className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${location.pathname === '/admin' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <BarChart3 size={18} /> Admin
           </Link>
           {authToken && (
             <>
-              <Link to="/fleet" className={location.pathname === '/fleet' ? 'active' : ''}>
-                <div className="flex items-center gap-2">
-                  <Map size={18} /> Fleet
-                </div>
+              <Link to="/fleet" className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${location.pathname === '/fleet' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+                <Map size={18} /> Fleet
               </Link>
-              <Link to="/alerts" className={location.pathname === '/alerts' ? 'active' : ''}>
-                <div className="flex items-center gap-2">
-                  <AlertTriangle size={18} /> Alerts
-                </div>
+              <Link to="/alerts" className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${location.pathname === '/alerts' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+                <AlertTriangle size={18} /> Alerts
               </Link>
-              <Link to="/audit-logs" className={location.pathname === '/audit-logs' ? 'active' : ''}>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck size={18} /> Audit Trail
-                </div>
+              <Link to="/audit-logs" className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${location.pathname === '/audit-logs' ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+                <ShieldCheck size={18} /> Audit Trail
               </Link>
-              <Link to="/driver/1" className={location.pathname.startsWith('/driver') ? 'active' : ''}>
-                <div className="flex items-center gap-2">
-                  <User size={18} /> Profile
-                </div>
+              <Link to="/driver/1" className={`px-3 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${location.pathname.startsWith('/driver') ? 'bg-white/20 text-white' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+                <User size={18} /> Profile
               </Link>
-              <button onClick={handleLogout} className="flex items-center gap-2 outline-btn ml-4" style={{ padding: '0.4rem 0.8rem' }}>
+              <button onClick={handleLogout} className="btn-outline border-white/20 text-white hover:bg-white/10 hover:text-white ml-2 py-1.5 px-3">
                 <LogOut size={16} /> Logout
               </button>
             </>
@@ -86,9 +74,9 @@ function App() {
 
   return (
     <Router>
-      <div className="app-wrapper">
+      <div className="min-h-screen flex flex-col">
         <NavLinks authToken={authToken} handleLogout={handleLogout} />
-        <main className="container">
+        <main className="max-w-5xl mx-auto px-8 w-full pb-12 flex-1">
           <Routes>
             <Route path="/" element={<Feedback />} />
             <Route path="/leaderboard" element={<Leaderboard />} />

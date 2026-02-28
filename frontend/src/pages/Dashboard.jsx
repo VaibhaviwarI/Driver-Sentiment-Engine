@@ -61,22 +61,22 @@ export default function Dashboard() {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1>Admin Analytics & Alerts</h1>
-                <div className="card flex items-center gap-4" style={{ marginBottom: 0 }}>
-                    <span>Queue Backlog: <strong>{system.queueLength}</strong></span>
-                    <span style={{ borderLeft: '1px solid var(--border)', paddingLeft: '1rem' }}>
-                        Alert Threshold: <strong>{system.alertThreshold}</strong>
+                <h1 className="text-3xl font-bold text-slate-900 mb-0">Admin Analytics & Alerts</h1>
+                <div className="card mb-0 flex items-center gap-4 py-3 px-5">
+                    <span className="text-slate-700">Queue Backlog: <strong className="text-slate-900">{system.queueLength}</strong></span>
+                    <span className="border-l border-slate-200 pl-4 text-slate-700">
+                        Alert Threshold: <strong className="text-slate-900">{system.alertThreshold}</strong>
                     </span>
                 </div>
             </div>
 
             {riskyDrivers.length > 0 && (
-                <div className="card mb-8" style={{ background: '#fef2f2', borderColor: '#f87171' }}>
-                    <h2 style={{ color: '#b91c1c', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <AlertTriangle /> Active Alerts ({riskyDrivers.length})
+                <div className="card mb-8 bg-red-50 border-red-200">
+                    <h2 className="text-red-700 flex items-center gap-2 m-0 mb-2">
+                        <AlertTriangle className="text-red-700" /> Active Alerts ({riskyDrivers.length})
                     </h2>
-                    <p style={{ color: '#991b1b' }}>The following drivers have dropped below the configured threshold of {system.alertThreshold}.</p>
-                    <ul style={{ paddingLeft: '20px', color: '#7f1d1d' }}>
+                    <p className="text-red-800 mb-4">The following drivers have dropped below the configured threshold of {system.alertThreshold}.</p>
+                    <ul className="pl-6 text-red-900 list-disc space-y-1">
                         {riskyDrivers.map(d => (
                             <li key={d.id}><strong>{d.name}</strong> - Avg Rating: {d.average_score} ({d.feedback_count} reviews)</li>
                         ))}
@@ -84,23 +84,23 @@ export default function Dashboard() {
                 </div>
             )}
 
-            <div className="stats-grid">
-                <div className="card stat-card">
-                    <Users size={32} color="var(--primary)" style={{ margin: '0 auto 1rem' }} />
-                    <h3>Total Drivers</h3>
-                    <div className="stat-value">{drivers.length}</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="card text-center flex flex-col items-center justify-center">
+                    <Users size={32} className="text-primary mb-3" />
+                    <h3 className="text-lg font-medium text-slate-700">Total Drivers</h3>
+                    <div className="text-4xl font-bold text-primary mt-2">{drivers.length}</div>
                 </div>
-                <div className="card stat-card">
-                    <MessageSquare size={32} color="var(--success)" style={{ margin: '0 auto 1rem' }} />
-                    <h3>Total Feedback Parsed</h3>
-                    <div className="stat-value">
+                <div className="card text-center flex flex-col items-center justify-center">
+                    <MessageSquare size={32} className="text-emerald-500 mb-3" />
+                    <h3 className="text-lg font-medium text-slate-700">Total Feedback Parsed</h3>
+                    <div className="text-4xl font-bold text-emerald-500 mt-2">
                         {drivers.reduce((acc, curr) => acc + curr.feedback_count, 0)}
                     </div>
                 </div>
-                <div className="card stat-card">
-                    <AlertTriangle size={32} color="var(--danger)" style={{ margin: '0 auto 1rem' }} />
-                    <h3>Adjust Threshold</h3>
-                    <form onSubmit={handleUpdateConfig} className="flex gap-4 mt-4 justify-center">
+                <div className="card text-center flex flex-col items-center justify-center">
+                    <AlertTriangle size={32} className="text-rose-500 mb-3" />
+                    <h3 className="text-lg font-medium text-slate-700">Adjust Threshold</h3>
+                    <form onSubmit={handleUpdateConfig} className="flex gap-3 mt-4 justify-center w-full">
                         <input
                             type="number"
                             step="0.1"
@@ -109,59 +109,59 @@ export default function Dashboard() {
                             placeholder="e.g. 3.0"
                             value={newThreshold}
                             onChange={e => setNewThreshold(e.target.value)}
-                            style={{ width: '80px' }}
+                            className="form-input w-24 py-2"
                             required
                         />
-                        <button type="submit" style={{ padding: '0.5rem 1rem' }}>Apply</button>
+                        <button type="submit" className="btn-primary py-2 px-4 shadow-none">Apply</button>
                     </form>
                 </div>
             </div>
 
             <div className="card mb-8">
-                <h2>Driver Average Scores</h2>
-                <div style={{ width: '100%', height: 300 }}>
+                <h2 className="text-xl font-bold text-slate-800 mb-6">Driver Average Scores</h2>
+                <div className="w-full h-80">
                     <ResponsiveContainer>
                         <AreaChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="name" />
-                            <YAxis domain={[1, 5]} />
-                            <Tooltip />
-                            <Area type="monotone" dataKey="score" stroke="var(--primary)" fill="rgba(79, 70, 229, 0.1)" />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                            <XAxis dataKey="name" stroke="#64748b" />
+                            <YAxis domain={[1, 5]} stroke="#64748b" />
+                            <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                            <Area type="monotone" dataKey="score" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="rgba(79, 70, 229, 0.1)" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
             </div>
 
             <div className="card">
-                <h2>Live Feedback Stream</h2>
-                <div className="table-container">
-                    <table>
-                        <thead>
+                <h2 className="text-xl font-bold text-slate-800 mb-6">Live Feedback Stream</h2>
+                <div className="overflow-x-auto rounded-lg border border-slate-200">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50 border-b border-slate-200">
                             <tr>
-                                <th>Driver Name</th>
-                                <th>Calculated Sentiment Score</th>
-                                <th>Raw Feedback</th>
-                                <th>Timestamp</th>
+                                <th className="p-4 font-semibold text-slate-600">Driver Name</th>
+                                <th className="p-4 font-semibold text-slate-600">Calculated Sentiment Score</th>
+                                <th className="p-4 font-semibold text-slate-600">Raw Feedback</th>
+                                <th className="p-4 font-semibold text-slate-600">Timestamp</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-slate-100">
                             {feedbacks.map((fb, idx) => (
-                                <tr key={idx}>
-                                    <td>{fb.driver_name}</td>
-                                    <td>
+                                <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                                    <td className="p-4">{fb.driver_name}</td>
+                                    <td className="p-4">
                                         <span className={`score-badge ${getBadgeClass(fb.score)}`}>
                                             {fb.score} / 5
                                         </span>
                                     </td>
-                                    <td>{fb.text}</td>
-                                    <td style={{ color: 'var(--text-muted)' }}>
+                                    <td className="p-4 text-slate-700">{fb.text}</td>
+                                    <td className="p-4 text-slate-500 text-sm">
                                         {new Date(fb.created_at).toLocaleString()}
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                    {feedbacks.length === 0 && <p className="mt-4" style={{ textAlign: 'center' }}>No feedback submitted yet.</p>}
+                    {feedbacks.length === 0 && <p className="p-8 text-center text-slate-500">No feedback submitted yet.</p>}
                 </div>
             </div>
 
