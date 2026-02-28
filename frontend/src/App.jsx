@@ -4,7 +4,12 @@ import axios from 'axios';
 import Feedback from './pages/Feedback';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
-import { Car, BarChart3, LogOut } from 'lucide-react';
+import DriverDashboard from './pages/DriverDashboard';
+import Alerts from './pages/Alerts';
+import Fleet from './pages/Fleet';
+import Leaderboard from './pages/Leaderboard';
+import AuditLogs from './pages/AuditLogs';
+import { Car, BarChart3, LogOut, AlertTriangle, Map, Trophy, User, ShieldCheck } from 'lucide-react';
 import './index.css';
 
 function NavLinks({ authToken, handleLogout }) {
@@ -14,22 +19,48 @@ function NavLinks({ authToken, handleLogout }) {
       <div className="nav-content">
         <div className="flex items-center gap-4">
           <Car size={32} color="var(--primary)" />
-          <h2>MoveInSync Sentiment Engine</h2>
+          <h2>Driver Sentiment Engine</h2>
         </div>
         <div className="nav-links flex items-center">
           <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
             Rider App
           </Link>
+          <Link to="/leaderboard" className={location.pathname === '/leaderboard' ? 'active' : ''}>
+            <div className="flex items-center gap-2">
+              <Trophy size={18} /> Elite Rank
+            </div>
+          </Link>
           <Link to="/admin" className={location.pathname === '/admin' ? 'active' : ''}>
             <div className="flex items-center gap-2">
-              <BarChart3 size={18} />
-              Admin Dashboard
+              <BarChart3 size={18} /> Admin
             </div>
           </Link>
           {authToken && (
-            <button onClick={handleLogout} className="flex items-center gap-2 outline-btn ml-4" style={{ padding: '0.4rem 0.8rem' }}>
-              <LogOut size={16} /> Logout
-            </button>
+            <>
+              <Link to="/fleet" className={location.pathname === '/fleet' ? 'active' : ''}>
+                <div className="flex items-center gap-2">
+                  <Map size={18} /> Fleet
+                </div>
+              </Link>
+              <Link to="/alerts" className={location.pathname === '/alerts' ? 'active' : ''}>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle size={18} /> Alerts
+                </div>
+              </Link>
+              <Link to="/audit-logs" className={location.pathname === '/audit-logs' ? 'active' : ''}>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={18} /> Audit Trail
+                </div>
+              </Link>
+              <Link to="/driver/1" className={location.pathname.startsWith('/driver') ? 'active' : ''}>
+                <div className="flex items-center gap-2">
+                  <User size={18} /> Profile
+                </div>
+              </Link>
+              <button onClick={handleLogout} className="flex items-center gap-2 outline-btn ml-4" style={{ padding: '0.4rem 0.8rem' }}>
+                <LogOut size={16} /> Logout
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -60,9 +91,23 @@ function App() {
         <main className="container">
           <Routes>
             <Route path="/" element={<Feedback />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/driver/:id" element={<DriverDashboard />} />
             <Route
               path="/admin"
               element={authToken ? <Dashboard /> : <Login setAuthToken={setAuthToken} />}
+            />
+            <Route
+              path="/alerts"
+              element={authToken ? <Alerts /> : <Login setAuthToken={setAuthToken} />}
+            />
+            <Route
+              path="/fleet"
+              element={authToken ? <Fleet /> : <Login setAuthToken={setAuthToken} />}
+            />
+            <Route
+              path="/audit-logs"
+              element={authToken ? <AuditLogs /> : <Login setAuthToken={setAuthToken} />}
             />
           </Routes>
         </main>

@@ -19,10 +19,18 @@ function initializeTables() {
             CREATE TABLE IF NOT EXISTS drivers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
+                region TEXT DEFAULT 'North',
                 average_score REAL DEFAULT 0.0,
                 feedback_count INTEGER DEFAULT 0
             )
-        `);
+        `, (err) => {
+            // Fallback to alter table for existing databases without breaking
+            if (!err) {
+                db.run(`ALTER TABLE drivers ADD COLUMN region TEXT DEFAULT 'North'`, (alterErr) => {
+                    // Ignore error if column already exists
+                });
+            }
+        });
 
         // Feedback Table
         db.run(`
@@ -59,6 +67,28 @@ function initializeTables() {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 payload TEXT NOT NULL,
                 status TEXT DEFAULT 'pending',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Alerts Table
+        db.run(`
+            CREATE TABLE IF NOT EXISTS alerts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                driver_id INTEGER NOT NULL,
+                reason TEXT NOT NULL,
+                status TEXT DEFAULT 'Open',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (driver_id) REFERENCES drivers (id)
+            )
+        `);
+
+        // Audit Logs Table
+        db.run(`
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                action TEXT NOT NULL,
+                details TEXT NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);

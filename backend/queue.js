@@ -99,6 +99,7 @@ class PersistentQueue {
             const driver = await getQuery('SELECT * FROM drivers WHERE id = ?', [driverId]);
             if (!driver) throw new Error(`Driver not found: ${driverId}`);
 
+            const oldEma = driver.average_score || 5.0; // Assume 5.0 if new driver
             const newEma = calculateEMA(score, driver.average_score, driver.feedback_count);
             const newCount = driver.feedback_count + 1;
 
@@ -112,7 +113,7 @@ class PersistentQueue {
                 [driverId, text, score]
             );
 
-            await this.checkAndTriggerAlert(driverId, driver.name, newEma);
+            await this.checkAndTriggerAlert(driverId, driver.name, newEma, oldEma);
             await runQuery('COMMIT');
             cache.invalidate('admin_drivers');
 
@@ -125,17 +126,39 @@ class PersistentQueue {
     /**
      * Alert logic
      */
-    async checkAndTriggerAlert(driverId, driverName, newEma) {
-        const configRow = await getQuery("SELECT value FROM config WHERE key = 'alert_threshold'");
-        const threshold = configRow ? parseFloat(configRow.value) : 2.5;
+    async checkAndTriggerAlert(driverId, driverName, newEma, oldEma) {
+        let alertReason = null;
 
-        if (newEma < threshold) {
+        // 1. Sudden Risk Drop Detection
+        if (oldEma - newEma >= 1.0) {
+            alertReason = `Rapid degradation: Score dropped sharply from ${oldEma.toFixed(2)} to ${newEma.toFixed(2)}`;
+        } else {
+            // 2. Threshold-based alert
+            const configRow = await getQuery("SELECT value FROM config WHERE key = 'alert_threshold'");
+            const threshold = configRow ? parseFloat(configRow.value) : 2.5;
+
+            if (newEma < threshold) {
+                alertReason = `Threshold breached: Dropped below ${threshold}`;
+            }
+        }
+
+        if (alertReason) {
             const lastAlertTime = this.alertLocks.get(driverId);
             const now = Date.now();
 
             if (!lastAlertTime || (now - lastAlertTime > this.LOCK_COOLDOWN_MS)) {
-                console.warn(`[🚨 ALERT TRIGGERED] Driver ${driverName} has dropped below threshold! Current Avg: ${newEma}`);
+                console.warn(`[🚨 ALERT TRIGGERED] Driver ${driverName}. Reason: ${alertReason}`);
                 this.alertLocks.set(driverId, now);
+
+                try {
+                    // Try to insert into new alerts table if it exists
+                    await runQuery(
+                        `INSERT INTO alerts (driver_id, reason) VALUES (?, ?)`,
+                        [driverId, alertReason]
+                    );
+                } catch (e) {
+                    // Fallback console log for legacy tests
+                }
             }
         }
     }

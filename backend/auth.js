@@ -22,8 +22,19 @@ function generateToken(userPayload) {
     return jwt.sign(userPayload, SECRET_KEY, { expiresIn: '2h' });
 }
 
+// Role-based access control middleware
+function authorizeRole(roles) {
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            return res.status(403).json({ error: 'Access forbidden: Insufficient role.' });
+        }
+        next();
+    };
+}
+
 module.exports = {
     authenticateToken,
     generateToken,
+    authorizeRole,
     SECRET_KEY
 };
