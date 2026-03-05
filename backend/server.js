@@ -285,6 +285,21 @@ app.post('/api/admin/driver/:id/deactivate', async (req, res) => {
     }
 });
 
+// 8. Remote Seeding Endpoint (for Free Tier platforms without Shell access)
+app.get('/api/admin/seed', async (req, res) => {
+    try {
+        await runQuery(`INSERT INTO drivers (name) VALUES ('John Smith')`);
+        await runQuery(`INSERT INTO drivers (name) VALUES ('Alice Johnson')`);
+        await runQuery(`INSERT INTO drivers (name) VALUES ('Bob Miller')`);
+        await runQuery(`INSERT INTO config (key, value) VALUES ('feature_app', 'false') ON CONFLICT DO NOTHING`).catch(() => { });
+        await runQuery(`INSERT INTO config (key, value) VALUES ('feature_marshal', 'false') ON CONFLICT DO NOTHING`).catch(() => { });
+        await runQuery("INSERT INTO audit_logs (action, details) VALUES (?, ?)", ['SYSTEM_SEEDED', 'Database seeded via remote endpoint']);
+        res.json({ message: 'Database seeding completed successfully.' });
+    } catch (err) {
+        res.status(500).json({ error: 'Database error during seeding', details: err.message });
+    }
+});
+
 // ==========================================
 // GLOBAL ERROR HANDLING
 // ==========================================
