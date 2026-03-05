@@ -20,26 +20,6 @@ const path = require('path');
 let pool;
 let db;
 
-if (process.env.DATABASE_URL) {
-    pool = new Pool({
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
-    });
-    console.log('Connected to PostgreSQL database (Railway).');
-    // For pg we don't call it here directly since it's async, but we can standardly call our async initializer
-    initializeTablesPg();
-} else {
-    const dbPath = path.resolve(__dirname, 'sentiment.db');
-    db = new sqlite3.Database(dbPath, (err) => {
-        if (err) {
-            console.error('Error opening SQLite database', err.message);
-        } else {
-            console.log('Connected to the SQLite database.');
-            initializeTables();
-        }
-    });
-}
-
 function initializeTables() {
     db.serialize(() => {
         // Driver Table
@@ -274,6 +254,30 @@ async function initializeTablesPg() {
     }
 }
 
+
+// Initialize DB connection after all functions are defined to avoid Temporal Dead Zone (hoisting) issues
+if (process.env.DATABASE_URL) {
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+    });
+    console.log('Connected to PostgreSQL database (Railway).');
+
+    // Call the initializer async, gracefully catch any massive failures
+    initializeTablesPg().catch(err => {
+        console.error("Critical Failure in PostgreSQL Initialization:", err);
+    });
+} else {
+    const dbPath = path.resolve(__dirname, 'sentiment.db');
+    db = new sqlite3.Database(dbPath, (err) => {
+        if (err) {
+            console.error('Error opening SQLite database', err.message);
+        } else {
+            console.log('Connected to the SQLite database.');
+            initializeTables();
+        }
+    });
+}
 
 module.exports = {
     db,
