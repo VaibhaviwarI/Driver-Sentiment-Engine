@@ -134,6 +134,18 @@ app.get('/api/admin/seed', async (req, res) => {
     }
 });
 
+// 9. Temporary endpoint to rename duplicate drivers (from double-seeding)
+app.get('/api/admin/fix-drivers', async (req, res) => {
+    try {
+        await runQuery("UPDATE drivers SET name = 'Mike Davis' WHERE id = 4");
+        await runQuery("UPDATE drivers SET name = 'Sarah Wilson' WHERE id = 5");
+        await runQuery("UPDATE drivers SET name = 'Tom Brown' WHERE id = 6");
+        res.json({ message: 'Duplicate drivers renamed successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Apply JWT authentication to all admin routes below this line
 app.use('/api/admin', authenticateToken, authorizeRole(['admin', 'manager']));
 
