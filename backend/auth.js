@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// const SECRET_KEY = process.env.JWT_SECRET || 'super-secret-key-for-driver-sentiment-mvp';
+
+// deployment changes: use environment variable for production security
 const SECRET_KEY = process.env.JWT_SECRET || 'super-secret-key-for-driver-sentiment-mvp';
 
 // Middleware to protect routes

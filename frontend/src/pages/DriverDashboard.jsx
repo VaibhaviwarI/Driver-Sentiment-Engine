@@ -3,7 +3,9 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { User, Star, MapPin } from 'lucide-react';
 
-const API_URL = 'http://localhost:3001/api';
+// const API_URL = 'http://localhost:3001/api';
+// deployment changes: use environment variable for Vercel deployment
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 export default function DriverDashboard() {
     const { id } = useParams();

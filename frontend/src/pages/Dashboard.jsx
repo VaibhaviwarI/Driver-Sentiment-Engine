@@ -3,7 +3,9 @@ import axios from 'axios';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertTriangle, Users, MessageSquare } from 'lucide-react';
 
-const API_URL = 'http://localhost:3001/api';
+// const API_URL = 'http://localhost:3001/api';
+// deployment changes: use environment variable for Vercel deployment
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 export default function Dashboard() {
     const [drivers, setDrivers] = useState([]);

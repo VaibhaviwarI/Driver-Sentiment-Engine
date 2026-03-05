@@ -98,9 +98,15 @@ const { authenticateToken, generateToken, authorizeRole } = require('./auth');
 // ==========================================
 
 app.post('/api/admin/login', (req, res) => {
+    // const { username, password } = req.body;
+    // // Hardcoded admin for MVP purposes
+    // if (username === 'admin' && password === 'admin123') {
+
+    // deployment changes: use environment variables for admin credentials on Render
     const { username, password } = req.body;
-    // Hardcoded admin for MVP purposes
-    if (username === 'admin' && password === 'admin123') {
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    if (username === adminUsername && password === adminPassword) {
         const token = generateToken({ username, role: 'admin' });
         res.json({ token });
     } else {
@@ -186,7 +192,7 @@ app.post('/api/admin/config', async (req, res) => {
 // NEW FEATURE ENDPOINTS
 // ==========================================
 
-// 1. Leaderboard (Public/Driver app accessible)
+// 1. Leaderboard (Public/Driver app accessible) top 10 drivers
 app.get('/api/leaderboard', async (req, res) => {
     try {
         const drivers = await allQuery("SELECT id, name, average_score, region FROM drivers WHERE average_score > 0 ORDER BY average_score DESC LIMIT 10");
