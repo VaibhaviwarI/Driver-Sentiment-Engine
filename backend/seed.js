@@ -11,8 +11,9 @@ async function seed() {
     // Add UI Config Flags (Feature Flags)
     // Driver & Trip are enabled by default (from database.js)
     // Let's add the Marshal & App configs too
-    await runQuery(`INSERT OR IGNORE INTO config (key, value) VALUES ('feature_app', 'false')`);
-    await runQuery(`INSERT OR IGNORE INTO config (key, value) VALUES ('feature_marshal', 'false')`);
+    // Let's add the Marshal & App configs too
+    await runQuery(`INSERT INTO config (key, value) VALUES ('feature_app', 'false') ON CONFLICT DO NOTHING`).catch(() => { });
+    await runQuery(`INSERT INTO config (key, value) VALUES ('feature_marshal', 'false') ON CONFLICT DO NOTHING`).catch(() => { });
 
     console.log("Seeding complete. You can now start the server.");
     process.exit(0);
