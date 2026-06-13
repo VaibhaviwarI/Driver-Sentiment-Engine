@@ -4,7 +4,7 @@ class SimpleTTLCache {
         this.ttl = ttlSeconds * 1000;
     }
 
-    set(key, value) {
+    set(key, value) { //this will store data in cache
         // Eviction policy: Remove oldest if cache is too large to prevent memory leaks
         if (this.cache.size >= 1000) {
             const firstKey = this.cache.keys().next().value;
@@ -17,7 +17,7 @@ class SimpleTTLCache {
         });
     }
 
-    get(key) {
+    get(key) { //this will get data from cache
         const item = this.cache.get(key);
         if (!item) return null;
 
@@ -28,11 +28,11 @@ class SimpleTTLCache {
         return item.value;
     }
 
-    invalidate(key) {
+    invalidate(key) { //  this will remove data from cache
         this.cache.delete(key);
     }
 
-    clear() {
+    clear() { //this will clear the cache   
         this.cache.clear();
     }
 }

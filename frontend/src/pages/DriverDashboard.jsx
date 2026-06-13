@@ -7,29 +7,65 @@ import { User, Star, MapPin } from 'lucide-react';
 // deployment changes: use environment variable for Vercel deployment
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+const DEFAULT_DRIVER = {
+    id: 1,
+    name: 'John Smith (Offline Demo)',
+    average_score: 4.8,
+    region: 'North',
+    feedback_count: 12
+};
+
+const DEFAULT_FEEDBACKS = [
+    { id: 1, score: 5.0, text: 'Great driver, felt very safe!', created_at: new Date().toISOString() },
+    { id: 2, score: 4.5, text: 'Clean car and smooth ride.', created_at: new Date(Date.now() - 3600000).toISOString() },
+    { id: 3, score: 4.8, text: 'Very polite and helpful driver.', created_at: new Date(Date.now() - 7200000).toISOString() }
+];
+
 export default function DriverDashboard() {
     const { id } = useParams();
     const [driver, setDriver] = useState(null);
     const [feedbacks, setFeedbacks] = useState([]);
+    const [connectionError, setConnectionError] = useState(false);
 
     useEffect(() => {
         const fetchDriver = async () => {
             try {
                 const driverId = id || 1;
                 const res = await axios.get(`${API_URL}/driver/dashboard/${driverId}`);
-                setDriver(res.data.driver);
-                setFeedbacks(res.data.feedbacks);
+                if (res.data.driver) {
+                    setDriver(res.data.driver);
+                    setFeedbacks(res.data.feedbacks || []);
+                } else {
+                    // Handle case where driver is missing from DB
+                    setDriver(DEFAULT_DRIVER);
+                    setFeedbacks(DEFAULT_FEEDBACKS);
+                    setConnectionError(true);
+                }
             } catch (err) {
-                console.error(err);
+                console.error("Failed to fetch driver info, using offline defaults:", err);
+                setDriver(DEFAULT_DRIVER);
+                setFeedbacks(DEFAULT_FEEDBACKS);
+                setConnectionError(true);
             }
         };
         fetchDriver();
     }, [id]);
 
-    if (!driver) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading Driver Info...</div>;
+    if (!driver) return (
+        <div className="card text-center my-8 p-8 max-w-2xl mx-auto shadow-md">
+            <p className="text-slate-600 font-medium">Loading Driver Info...</p>
+        </div>
+    );
 
     return (
         <div>
+            {connectionError && (
+                <div className="bg-amber-50 text-amber-700 border border-amber-200 p-4 rounded-lg mb-6 flex items-center gap-3 font-medium text-sm">
+                    <span className="text-lg">⚠️</span> 
+                    <span>Could not connect to the backend server. Running in fallback demonstration mode.</span>
+                </div>
+            )}
+
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-slate-900 m-0">Driver View (Dashboard)</h1>
                 <div className="card mb-0 flex items-center gap-4 py-3 px-5">

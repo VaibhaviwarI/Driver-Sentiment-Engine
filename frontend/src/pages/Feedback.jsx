@@ -2,13 +2,23 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Send, CheckCircle2 } from 'lucide-react';
 
-// const API_URL = 'http://localhost:3001/api';
-// deployment changes: use environment variable for Vercel deployment
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const DEFAULT_CONFIG = {
+    feature_driver: true,
+    feature_trip: true,
+    feature_app: true,
+    feature_marshal: true
+};
+
+const DEFAULT_DRIVERS = [
+    { id: 1, name: 'John Smith (Offline Demo)' },
+    { id: 2, name: 'Alice Johnson (Offline Demo)' },
+    { id: 3, name: 'Bob Miller (Offline Demo)' }
+];
 
 export default function Feedback() {
     const [config, setConfig] = useState(null);
     const [drivers, setDrivers] = useState([]);
+    const [connectionError, setConnectionError] = useState(false);
 
     // Form State
     const [selectedDriver, setSelectedDriver] = useState('');
@@ -22,10 +32,22 @@ export default function Feedback() {
 
     useEffect(() => {
         // Fetch UI Feature Flags to build dynamic form
-        axios.get(`${API_URL}/config/ui`).then(res => setConfig(res.data));
+        axios.get(`${API_URL}/config/ui`)
+            .then(res => setConfig(res.data))
+            .catch(err => {
+                console.error("Failed to fetch UI config, using defaults:", err);
+                setConfig(DEFAULT_CONFIG);
+                setConnectionError(true);
+            });
 
         // Fetch Drivers for dropdown
-        axios.get(`${API_URL}/drivers`).then(res => setDrivers(res.data));
+        axios.get(`${API_URL}/drivers`)
+            .then(res => setDrivers(res.data))
+            .catch(err => {
+                console.error("Failed to fetch drivers, using defaults:", err);
+                setDrivers(DEFAULT_DRIVERS);
+                setConnectionError(true);
+            });
     }, []);
 
     const handleSubmit = async (e) => {
@@ -36,6 +58,22 @@ export default function Feedback() {
         }
 
         setLoading(true);
+
+        if (connectionError) {
+            // Mock submission in fallback mode
+            setTimeout(() => {
+                setSuccess(true);
+                setDriverText('');
+                setTripText('');
+                setAppText('');
+                setMarshalText('');
+                setSelectedDriver('');
+                setLoading(false);
+                setTimeout(() => setSuccess(false), 3000);
+            }, 800);
+            return;
+        }
+
         try {
             // In a real app, we'd send all feedback fields.
             // For this engine, we focus purely on Driver Sentiment.
@@ -61,12 +99,23 @@ export default function Feedback() {
         }
     };
 
-    if (!config) return <p>Loading configurable form...</p>;
+    if (!config) return (
+        <div className="card text-center my-8 p-8 max-w-2xl mx-auto shadow-md">
+            <p className="text-slate-600 font-medium">Loading configurable feedback form...</p>
+        </div>
+    );
 
     return (
         <div className="card shadow-md max-w-2xl mx-auto my-8">
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Submit Trip Feedback</h2>
             <p className="text-slate-500 mb-6">Your feedback helps us maintain high safety and quality standards.</p>
+
+            {connectionError && (
+                <div className="bg-amber-50 text-amber-700 border border-amber-200 p-4 rounded-lg mb-6 flex items-center gap-3 font-medium text-sm">
+                    <span className="text-lg">⚠️</span> 
+                    <span>Could not connect to the backend server. Running in fallback demonstration mode.</span>
+                </div>
+            )}
 
             {success && (
                 <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 p-4 rounded-lg mb-6 flex items-center gap-3 font-medium">

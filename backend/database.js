@@ -101,6 +101,16 @@ function initializeTables() {
             )
         `);
 
+        // Auto-seed drivers if none exist
+        db.get("SELECT COUNT(*) as count FROM drivers", (err, row) => {
+            if (!err && row && row.count === 0) {
+                console.log("Seeding default drivers for SQLite...");
+                db.run(`INSERT INTO drivers (name) VALUES ('John Smith')`);
+                db.run(`INSERT INTO drivers (name) VALUES ('Alice Johnson')`);
+                db.run(`INSERT INTO drivers (name) VALUES ('Bob Miller')`);
+            }
+        });
+
         console.log('Database tables initialized.');
     });
 }
@@ -198,6 +208,16 @@ async function initializeTablesPg() {
         `);
         await runQuery(`ALTER TABLE drivers ADD COLUMN region TEXT DEFAULT 'North'`).catch(() => { });
 
+        // Auto-seed drivers if none exist
+        const driverCountRow = await getQuery("SELECT COUNT(*) as count FROM drivers");
+        const count = driverCountRow ? driverCountRow.count : 0;
+        if (count === 0) {
+            console.log("Seeding default drivers for PostgreSQL...");
+            await runQuery(`INSERT INTO drivers (name) VALUES ('John Smith')`);
+            await runQuery(`INSERT INTO drivers (name) VALUES ('Alice Johnson')`);
+            await runQuery(`INSERT INTO drivers (name) VALUES ('Bob Miller')`);
+        }
+
         await runQuery(`
             CREATE TABLE IF NOT EXISTS feedbacks (
                 id SERIAL PRIMARY KEY,
@@ -255,28 +275,49 @@ async function initializeTablesPg() {
 }
 
 
-// Initialize DB connection after all functions are defined to avoid Temporal Dead Zone (hoisting) issues
-if (process.env.DATABASE_URL) {
-    pool = new Pool({
+// Initialize SQLite connection synchronously so 'db' is always defined
+const dbPath = path.resolve(__dirname, 'sentiment.db');
+db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('Error opening SQLite database', err.message);
+    } else {
+        console.log('Connected to SQLite database.');
+    }
+});
+
+// Check if PostgreSQL DATABASE_URL is provided and valid
+const isDbUrlInvalidPlaceholder = process.env.DATABASE_URL && (
+    process.env.DATABASE_URL.includes('${{') || 
+    process.env.DATABASE_URL.includes('RAILWAY_PRIVATE_DOMAIN')
+);
+
+if (process.env.DATABASE_URL && !isDbUrlInvalidPlaceholder) {
+    console.log('Attempting connection to PostgreSQL database...');
+    const pgPool = new Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: { rejectUnauthorized: false }
     });
-    console.log('Connected to PostgreSQL database (Railway).');
 
-    // Call the initializer async, gracefully catch any massive failures
-    initializeTablesPg().catch(err => {
-        console.error("Critical Failure in PostgreSQL Initialization:", err);
-    });
+    // Test PostgreSQL connection
+    pgPool.query('SELECT 1')
+        .then(async () => {
+            console.log('Connected to PostgreSQL database (Railway).');
+            pool = pgPool; // Activate PostgreSQL queries
+            await initializeTablesPg();
+        })
+        .catch(err => {
+            console.error("Failed to connect to PostgreSQL database, using SQLite fallback:", err.message);
+            pool = null; // Stick to SQLite fallback
+            initializeTables(); // Make sure SQLite tables are initialized
+        });
 } else {
-    const dbPath = path.resolve(__dirname, 'sentiment.db');
-    db = new sqlite3.Database(dbPath, (err) => {
-        if (err) {
-            console.error('Error opening SQLite database', err.message);
-        } else {
-            console.log('Connected to the SQLite database.');
-            initializeTables();
-        }
-    });
+    if (isDbUrlInvalidPlaceholder) {
+        console.warn("DATABASE_URL contains unresolved Railway template placeholders. Using SQLite fallback.");
+    } else {
+        console.log("No DATABASE_URL found. Using SQLite database.");
+    }
+    pool = null;
+    initializeTables();
 }
 
 module.exports = {

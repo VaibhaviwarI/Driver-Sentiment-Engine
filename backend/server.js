@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan'); // HTTP request logger
+const morgan = require('morgan'); // It helps developers see incoming requests in the terminal for debugging and monitoring.
 const { getQuery, allQuery, runQuery } = require('./database');
 const { pushToQueue, getQueueStats } = require('./queue');
 const cache = require('./cache');
@@ -18,8 +18,8 @@ app.get('/health', async (req, res) => {
     try {
         const queueRow = await getQuery(`SELECT COUNT(*) as count FROM jobs_queue WHERE status = 'pending'`);
         const qLen = queueRow ? queueRow.count : 0;
-        const uptime = process.uptime();
-        const mem = process.memoryUsage();
+        const uptime = process.uptime(); //Returns how long the Node.js server has been running.
+        const mem = process.memoryUsage(); 
 
         res.status(200).json({
             status: 'ok',
@@ -70,7 +70,7 @@ app.get('/api/config/ui', async (req, res) => {
 
         const rows = await allQuery("SELECT * FROM config WHERE key LIKE 'feature_%'");
         const configMap = {};
-        rows.forEach(r => configMap[r.key] = r.value === 'true');
+        rows.forEach(r => configMap[r.key] = r.value === 'true'); //converts db rows to objects
 
         cache.set('config_ui', configMap); // Save to cache
         res.json(configMap);
@@ -126,7 +126,7 @@ app.get('/api/admin/seed', async (req, res) => {
         await runQuery(`INSERT INTO drivers (name) VALUES ('Alice Johnson')`);
         await runQuery(`INSERT INTO drivers (name) VALUES ('Bob Miller')`);
         await runQuery(`INSERT INTO config (key, value) VALUES ('feature_app', 'false') ON CONFLICT DO NOTHING`).catch(() => { });
-        await runQuery(`INSERT INTO config (key, value) VALUES ('feature_marshal', 'false') ON CONFLICT DO NOTHING`).catch(() => { });
+        await runQuery(`INSERT INTO config (key, value) VALUES ('feature_marshal', 'false') ON CONFLICT DO NOTHING`).catch(() => { }); //This code ensures default feature flags exist when the server starts.
         await runQuery("INSERT INTO audit_logs (action, details) VALUES (?, ?)", ['SYSTEM_SEEDED', 'Database seeded via remote endpoint']);
         res.json({ message: 'Database seeding completed successfully.' });
     } catch (err) {
@@ -233,7 +233,7 @@ app.get('/api/leaderboard', async (req, res) => {
 // 2. Driver dashboard routes (Public/Driver app accessible)
 app.get('/api/driver/dashboard/:id', async (req, res) => {
     try {
-        const driver = await getQuery("SELECT * FROM drivers WHERE id = ?", [req.params.id]);
+        const driver = await getQuery("SELECT * FROM drivers WHERE id = ?", [req.params.id]); //This fetches the driver information from the drivers table.
         const feedbacks = await allQuery("SELECT * FROM feedbacks WHERE driver_id = ? ORDER BY created_at DESC LIMIT 10", [req.params.id]);
         res.json({ driver, feedbacks });
     } catch (err) {
@@ -267,7 +267,7 @@ app.get('/api/admin/drivers/risk', async (req, res) => {
     }
 });
 
-// 5. Alert management (Admin only)
+// 5. Alert management (Admin only) READS alerts only
 app.get('/api/admin/alerts', async (req, res) => {
     try {
         const alerts = await allQuery(`
@@ -281,6 +281,9 @@ app.get('/api/admin/alerts', async (req, res) => {
     }
 });
 
+
+
+//This API allows an admin to mark an alert as resolved and records the action in an audit log.
 app.post('/api/admin/alerts/:id/resolve', async (req, res) => {
     try {
         await runQuery("UPDATE alerts SET status = 'Resolved' WHERE id = ?", [req.params.id]);
